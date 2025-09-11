@@ -19,7 +19,7 @@ class CreateUsersSeeder extends Seeder
             [
                'firstName'=>'superAdmin User',
                'lastName'=>'lsname',
-               'email'=>'superadmin@itsolonstuff.com',
+               'email'=>'superadmin@gmail.com',
                'picture'=>'admin@itsolutionstu',
                'pictureName'=>'admin@itsolutionstu',
                'phone'=>'123456',

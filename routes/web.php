@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CompanyAreaController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DeviceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,6 +45,8 @@ Route::group(['prefix' => 'companies','middleware' => 'auth'], function () {
 
 });
 
+
+
 //for testing select companu dynamically
 Route::get('/destroy_company_session', function () {
     session()->forget('selectedCompanyId');
@@ -51,3 +54,5 @@ Route::get('/destroy_company_session', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/zabeer-device', [DeviceController::class, 'index'])->name('zabeer.device');
