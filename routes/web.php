@@ -15,18 +15,19 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 Route::get('/', function () {
     return view('login');
 });
 
 // setup
-Route::group(['prefix' => 'setup','middleware' => 'auth'], function () {
+Route::group(['prefix' => 'setup', 'middleware' => 'auth'], function () {
     Route::get('/areas', [CompanyAreaController::class, 'index'])->name('setup.areas')->middleware(auth::class);
     Route::get('/areaList', [CompanyAreaController::class, 'areaList'])->name('setup.areaList');
 });
 
 // company
-Route::group(['prefix' => 'companies','middleware' => 'auth'], function () {
+Route::group(['prefix' => 'companies', 'middleware' => 'auth'], function () {
     Route::get('/getCompanyNames', [CompanyController::class, 'getCompanyNames'])->name('companies.getCompanyNames');
     Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
     Route::get('/edit/{companyId}', [CompanyController::class, 'edit'])->name('companies.edit');
@@ -39,10 +40,9 @@ Route::group(['prefix' => 'companies','middleware' => 'auth'], function () {
 
 
     // selected company section menus
-    Route::group(['prefix' => 'section','middleware' => 'auth'], function () {
+    Route::group(['prefix' => 'section', 'middleware' => 'auth'], function () {
         Route::get('/profile/{companyId}', [CompanyController::class, 'edit'])->name('companies.section.profile');
     });
-
 });
 
 
@@ -55,4 +55,7 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/zabeer-device', [DeviceController::class, 'index'])->name('zabeer.device');
+Route::group(['middleware' => 'auth'], function () {
+
+    Route::get('/devices', [DeviceController::class, 'index'])->name('zabeer.device');
+});

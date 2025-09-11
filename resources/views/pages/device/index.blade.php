@@ -57,8 +57,8 @@
             max-width: 600px;
             height: 400px;
             background: white;
-            border-radius: 10px;
-            padding: 20px;
+            border-radius: 1px;
+            padding: 1px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             box-sizing: border-box;
         }
@@ -107,8 +107,10 @@
         let loginData;
         let deviceAuthData;
         let sensorsData;
+        let chartInstances = {}; // Added to store and manage chart instances
 
         // Helper to calculate timestamps for time range
+        
         function getTimeRange(range) {
             const now = new Date();
             let start;
@@ -186,13 +188,18 @@
         async function renderCurrentTempCards() {
             const tempWrapper = document.getElementById('currentTempWrapper');
             tempWrapper.innerHTML = '';
+            
+            // Re-use sensorsData, no need to re-fetch
+            if (!sensorsData || !sensorsData.data) {
+                console.error("Sensors data not available.");
+                return;
+            }
 
             for (let sensor of sensorsData.data) {
-                // Get the most recent measurement (last 1 day)
                 const {
                     from,
                     to
-                } = getTimeRange('1d'); // you can change '1d' as needed
+                } = getTimeRange('1d');
                 const measurements = await getSensorMeasurements(sensor.id, from, to);
 
                 let latestMeasurement = 'N/A';
@@ -201,13 +208,10 @@
                 if (measurements.data.length > 0) {
                     const lastData = measurements.data[0];
                     latestMeasurement = lastData.value;
-
-                    // Format the time nicely
                     const dateObj = new Date(lastData.date);
-                    latestTime = dateObj.toLocaleString(); // e.g., "9/11/2025, 2:15:30 PM"
+                    latestTime = dateObj.toLocaleString();
                 }
 
-                // Create card
                 const card = document.createElement('div');
                 card.classList.add('temp-card');
                 card.innerHTML = `
@@ -221,37 +225,42 @@
 
         // Render charts for all sensors
         async function renderSensorCharts(timeRange) {
+            // Destroy existing charts to prevent memory leaks and rendering issues
+            for (let chartId in chartInstances) {
+                if (chartInstances[chartId] && typeof chartInstances[chartId].destroy === 'function') {
+                    chartInstances[chartId].destroy();
+                }
+            }
+            chartInstances = {};
+
             const {
                 from,
                 to
             } = getTimeRange(timeRange);
-            console.log("Selected time range:", timeRange, from, to);
-
-            sensorsData = sensorsData.data;
             const chartsWrapper = document.getElementById('chartsWrapper');
             chartsWrapper.innerHTML = '';
+            
+            // Re-use sensorsData, no need to re-fetch
+            if (!sensorsData || !sensorsData.data) {
+                console.error("Sensors data not available.");
+                return;
+            }
 
-            for (let i = 0; i < sensorsData.length; i++) {
-                const sensor = sensorsData[i];
-
-                // Get actual measurements
+            for (let i = 0; i < sensorsData.data.length; i++) {
+                const sensor = sensorsData.data[i];
                 const measurements = await getSensorMeasurements(sensor.id, from, to);
 
-                // Extract labels and values
                 const labels = measurements.data.map(d => new Date(d.date).toLocaleString());
                 const values = measurements.data.map(d => d.value);
 
-                // Create container & canvas
                 const container = document.createElement('div');
                 container.classList.add('chart-container');
-
                 const canvas = document.createElement('canvas');
                 canvas.id = `chart-${i}`;
                 container.appendChild(canvas);
                 chartsWrapper.appendChild(container);
 
-                // Render chart
-                new Chart(canvas.getContext('2d'), {
+                const newChart = new Chart(canvas.getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: labels,
@@ -260,9 +269,11 @@
                             data: values,
                             backgroundColor: 'rgba(54, 162, 235, 0.2)',
                             borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 2,
-                            tension: 0.3,
-                            fill: true
+                            borderWidth: 1,
+                            tension: 0,
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0
                         }]
                     },
                     options: {
@@ -272,56 +283,73 @@
                             title: {
                                 display: true,
                                 text: sensor.name
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.parsed.y}`;
+                                    }
+                                }
                             }
                         },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value * 100;
+                                    }
+                                }
                             }
                         }
                     }
                 });
+                chartInstances[`chart-${i}`] = newChart;
             }
         }
 
-        // Master function
+        // The core logic of the dashboard
+        const initializeDashboard = async () => {
+            try {
+                // One-time authentication and sensor list fetch
+                loginData = await login();
+                deviceAuthData = await deviceAuth(loginData);
+                sensorsData = await getSensors(deviceAuthData);
 
-        const runApisForcard = async () => {
-            loginData = await login();
-            deviceAuthData = await deviceAuth(loginData);
-            sensorsData = await getSensors(deviceAuthData);
+                // Initial render of cards and charts
+                await renderCurrentTempCards();
+                await renderSensorCharts(document.getElementById('timeRange').value);
 
-            await renderCurrentTempCards();
+                // Add event listener for time range changes
+                document.getElementById('timeRange').addEventListener('change', (e) => {
+                    renderSensorCharts(e.target.value);
+                });
 
-        }
-        runApisForcard();
-        const runApis = async (timeRange) => {
-            loginData = await login();
-            deviceAuthData = await deviceAuth(loginData);
-            sensorsData = await getSensors(deviceAuthData);
+                // Set up auto-refresh
+                setInterval(() => {
+                    refreshDashboard();
+                }, 300000); // 5 minutes in milliseconds
 
+            } catch (error) {
+                console.error("Error initializing dashboard:", error);
+                // Display a user-friendly error message
+                alert("Failed to load dashboard data. Please check your network connection or API credentials.");
+            }
+        };
 
-            await renderSensorCharts(timeRange);
-        }
+        // Function to refresh the dynamic data (measurements)
+        const refreshDashboard = async () => {
+            console.log("Refreshing dashboard data...");
+            try {
+                // Only re-render the charts and cards with the latest measurements
+                await renderCurrentTempCards();
+                await renderSensorCharts(document.getElementById('timeRange').value);
+            } catch (error) {
+                console.error("Error refreshing dashboard:", error);
+            }
+        };
 
-        // Call once on page load with default value
-        runApis(document.getElementById('timeRange').value);
-
-        // Call again whenever dropdown changes
-        document.getElementById('timeRange').addEventListener('change', (e) => {
-            runApis(e.target.value);
-        });
-
-        // Auto-refresh every 5 minutes
-        // setInterval(() => {
-        //     runApisForcard();
-        //     runApis(document.getElementById('timeRange').value);
-        // }, 300000); // 300000 ms = 5 minutes
-
-
-        setInterval(() => {
-            runApisForcard();
-            runApis(document.getElementById('timeRange').value);
-        }, 300000); // 25,000 ms = 25 seconds
+        // Start the application
+        initializeDashboard();
     </script>
 @endsection
