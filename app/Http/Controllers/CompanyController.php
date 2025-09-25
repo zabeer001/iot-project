@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
+use App\Models\Company;
 use App\Services\CompanyService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
@@ -26,8 +28,19 @@ class CompanyController extends Controller
         return view('pages.company.index');
     }
 
-    public function edit(Request $request, $companyId)
+    public function edit(Request $request)
     {
+           $user = Auth::user();
+        if (!$user) {
+            return null; // no authenticated user
+        }
+
+        $company = Company::with('credential')->where('email', $user->email)->first();
+
+        $companyId = $company->id;
+
+
+
         $company = $this->companyService->_find($companyId);
         if ($request->ajax())
             return $company;
@@ -41,6 +54,9 @@ class CompanyController extends Controller
 
     public function update(UpdateCompanyRequest $request)
     {
+
+        // dd($request);
+
         return $this->companyService->_update($request->companyId, $request->except(['logo', 'companyId']));
     }
 

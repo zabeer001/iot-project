@@ -89,27 +89,9 @@
                     </div>
                 </div>
 
-                {{-- Add the new fields here --}}
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label for="url" class="form-label">URL</label>
-                        <input type="text" class="form-control" id="url" value="{{$company->credential->url}}" name="url">
-                    </div>
-                    <div class="col-6">
-                        <label for="accessKey" class="form-label">Access Key</label>
-                        <input type="text" class="form-control" id="accessKey" value="{{$company->credential->accessKey}}" name="accessKey">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label for="secretKey" class="form-label">Secret Key</label>
-                        <input type="text" class="form-control" id="secretKey" value="{{$company->credential->secretKey}}" name="secretKey">
-                    </div>
-                </div>
-
                 <button type="button" class="btn btn-primary me-2 update_company">Save</button>
             </form>
+
         </div>
     </div>
 @endsection
@@ -121,8 +103,10 @@
 @push('custom-scripts')
     <script>
         $(document).ready(function () {
+
             // update company ajax
             $(document).on("click", ".update_company", function () {
+
                 let form = document.getElementById("edit_company_form");
                 let url = form.getAttribute("action");
                 let $this = $(this)

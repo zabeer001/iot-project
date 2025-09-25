@@ -1,3 +1,7 @@
+@php
+    $credential = \App\Helpers\Credentials::getCredentials();
+@endphp
+
 <nav class="sidebar">
     <div class="sidebar-header">
         <a href="#" class="sidebar-brand">
@@ -18,12 +22,24 @@
                 </a>
             </li>
 
-            <li class="nav-item {{ active_class(['zabeer-device']) }}">
-                <a href="{{ route('zabeer.device') }}" class="nav-link">
+
+            @if ($credential && ($credential->url || $credential->accessKey || $credential->secretKey))
+                <li class="nav-item {{ active_class(['zabeer-device']) }}">
+                    <a href="{{ route('zabeer.device') }}" class="nav-link">
+                        <i class="link-icon" data-feather="cpu"></i>
+                        <span class="link-title"> Device</span>
+                    </a>
+                </li>
+            @endif
+
+            {{-- <li class="nav-item {{ active_class(['zabeer-device']) }}">
+                <a href="{{ route('zabeer.polling.device') }}" class="nav-link">
                     <i class="link-icon" data-feather="cpu"></i>
-                    <span class="link-title">Zabeer Device</span>
+                    <span class="link-title"> Device</span>
                 </a>
-            </li>
+            </li> --}}
+
+            {{-- <li class="nav-item {{ active_class(['setup/*']) }}"> --}}
 
             <li class="nav-item {{ active_class(['setup/*']) }}">
                 <a class="nav-link" data-bs-toggle="collapse" href="#sliders" role="button"
@@ -75,6 +91,13 @@
                     </a>
                 </li>
             @endif
+
+            <li class="nav-item {{ active_class(['companies.section.profile']) }}">
+                <a href="{{ route('companies.section.profile') }}" class="nav-link">
+                    <i class="link-icon" data-feather="cpu"></i>
+                    <span class="link-title"> Test Profile for all </span>
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

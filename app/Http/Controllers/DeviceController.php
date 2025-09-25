@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Credentials;
+use App\Models\Company;
 use App\Models\Device;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DeviceController extends Controller
 {
@@ -14,7 +17,17 @@ class DeviceController extends Controller
      */
     public function index()
     {
-        return view('pages.device.index');
+        $credentials = Credentials::getCredentials();
+
+        $url = $credentials->url;
+     
+
+        if ($credentials->accessKey && $credentials->secretKey) {
+            return view('pages.device.polling', compact('credentials'));
+        }
+        if ($credentials->url && !$credentials->secretKey && !$credentials->accessKey) {
+            return view('pages.device.iframe', compact('url'));
+        }
     }
 
     /**

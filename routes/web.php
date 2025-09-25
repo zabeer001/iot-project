@@ -3,6 +3,7 @@
 use App\Http\Controllers\CompanyAreaController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DeviceController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,9 +41,9 @@ Route::group(['prefix' => 'companies', 'middleware' => 'auth'], function () {
 
 
     // selected company section menus
-    Route::group(['prefix' => 'section', 'middleware' => 'auth'], function () {
-        Route::get('/profile/{companyId}', [CompanyController::class, 'edit'])->name('companies.section.profile');
-    });
+    // Route::group(['prefix' => 'section', 'middleware' => 'auth'], function () {
+    //     Route::get('/profile/{companyId}', [CompanyController::class, 'edit'])->name('companies.section.profile');
+    // });
 });
 
 
@@ -58,4 +59,9 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/devices', [DeviceController::class, 'index'])->name('zabeer.device');
+});
+
+
+Route::group(['prefix' => 'section', 'middleware' => 'auth'], function () {
+    Route::get('/profile', [CompanyController::class, 'edit'])->name('companies.section.profile');
 });

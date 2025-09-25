@@ -3,6 +3,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 
 abstract class BaseService
 {
@@ -76,10 +78,40 @@ abstract class BaseService
         return $this->model->create($data);
     }
 
+    // public function _update($id, array $data)
+    // {
+    //     dd($id, $data); // Execution will stop here and show the values of $id and $data
+    //     return $this->model->find($id)->update($data);
+    // }
+
     public function _update($id, array $data)
     {
-        return $this->model->find($id)->update($data);
+        $credential_keys = ['url', 'accessKey', 'secretKey'];
+
+        $credentials_data = Arr::only($data, $credential_keys);
+        $companies_data   = Arr::except($data, array_merge($credential_keys, ['_token', 'companyId']));
+
+        return DB::transaction(function () use ($id, $companies_data, $credentials_data) {
+            $company = $this->model->find($id);
+
+            if (! $company) {
+                return false;
+            }
+
+            $company->update($companies_data);
+
+            if (!empty($credentials_data)) {
+                // safer: update if exists, otherwise create
+                $company->credential()->updateOrCreate(
+                    ['company_id' => $company->id],
+                    $credentials_data
+                );
+            }
+
+            return $company; // return updated model (or true if you prefer)
+        });
     }
+
 
     public function _updateOrCreate(array $data, array $condition = null)
     {

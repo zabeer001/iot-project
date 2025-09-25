@@ -10,6 +10,14 @@ class Company extends Model
 {
     use HasFactory, SoftDeletes;
 
+
     protected $table = 'companies';
     protected $fillable = ['name', 'email', 'phone', 'companySize', 'city', 'country', 'postalCode', 'logo', 'address', 'isActive'];
+
+
+
+    public function credential()
+    {
+        return $this->hasOne(CompanyCredential::class);
+    }
 }
