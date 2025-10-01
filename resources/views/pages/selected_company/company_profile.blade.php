@@ -19,51 +19,52 @@
                 <h5>Profile</h5>
             </div>
 
-            <form id="edit_company_form" action="{{route('companies.update')}}">
-                <input type="hidden" value="{{$company->id}}" id="companyId" name="companyId">
+            <form id="edit_company_form" action="{{ route('companies.update') }}">
+                <input type="hidden" value="{{ $company->id }}" id="companyId" name="companyId">
                 <div class="row mb-3">
                     <div class="col-6">
                         <label for="edit_name" class="form-label">Name</label>
-                        <input type="text" class="form-control" value="{{$company->name}}" id="edit_name" name="name">
+                        <input type="text" class="form-control" value="{{ $company->name }}" id="edit_name"
+                            name="name">
                     </div>
                     <div class="col-6">
                         <label for="edit_email" class="form-label">Email</label>
-                        <input type="email" class="form-control" value="{{$company->email}}" id="edit_email"
-                               name="email">
+                        <input type="email" class="form-control" value="{{ $company->email }}" id="edit_email"
+                            name="email">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label for="edit_phone" class="form-label">Phone</label>
-                        <input type="number" class="form-control" value="{{$company->phone}}" id="edit_phone"
-                               name="phone">
+                        <input type="number" class="form-control" value="{{ $company->phone }}" id="edit_phone"
+                            name="phone">
                     </div>
                     <div class="col-6">
                         <label for="edit_companySize" class="form-label">Company Size</label>
-                        <input type="number" class="form-control" value="{{$company->companySize}}"
-                               id="edit_companySize"
-                               name="companySize">
+                        <input type="number" class="form-control" value="{{ $company->companySize }}" id="edit_companySize"
+                            name="companySize">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label for="edit_city" class="form-label">City</label>
-                        <input type="text" class="form-control" value="{{$company->city}}" id="edit_city" name="city">
+                        <input type="text" class="form-control" value="{{ $company->city }}" id="edit_city"
+                            name="city">
                     </div>
                     <div class="col-6">
                         <label for="edit_country" class="form-label">Country</label>
-                        <input type="text" class="form-control" value="{{$company->country}}" id="edit_country"
-                               name="country">
+                        <input type="text" class="form-control" value="{{ $company->country }}" id="edit_country"
+                            name="country">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label for="edit_postalCode" class="form-label">Postal Code</label>
-                        <input type="text" class="form-control" value="{{$company->postalCode}}" id="edit_postalCode"
-                               name="postalCode">
+                        <input type="text" class="form-control" value="{{ $company->postalCode }}" id="edit_postalCode"
+                            name="postalCode">
                     </div>
 
                     <div class="col-6">
@@ -75,8 +76,8 @@
                 <div class="row mb-3">
                     <label class="form-label" for="isActive">Status</label>
                     <div style="margin-left: 13px" class="col-6 form-check form-switch">
-                        <input type="checkbox" class="form-check-input"
-                               {{$company->isActive === 1 ? 'checked' : ''}} id="isActive" name="isActive">
+                        <input type="checkbox" class="form-check-input" {{ $company->isActive === 1 ? 'checked' : '' }}
+                            id="isActive" name="isActive">
                         <label class="form-label" for="isActive">(Activate / Deactivate)</label>
                     </div>
                 </div>
@@ -84,8 +85,7 @@
                 <div class="row mb-3">
                     <div class="col-6">
                         <label for="edit_address" class="form-label">Address</label>
-                        <textarea rows="5" cols="8" class="form-control" id="edit_address"
-                                  name="address">{{$company->address}}</textarea>
+                        <textarea rows="5" cols="8" class="form-control" id="edit_address" name="address">{{ $company->address }}</textarea>
                     </div>
                 </div>
 
@@ -93,18 +93,21 @@
                 <div class="row mb-3">
                     <div class="col-6">
                         <label for="url" class="form-label">URL</label>
-                        <input type="text" class="form-control" id="url" value="{{$company->credential->url}}" name="url">
+                        <input type="text" class="form-control" id="url"
+                            value="{{ $company->credential->url }}" name="url">
                     </div>
                     <div class="col-6">
                         <label for="accessKey" class="form-label">Access Key</label>
-                        <input type="text" class="form-control" id="accessKey" value="{{$company->credential->accessKey}}" name="accessKey">
+                        <input type="text" class="form-control" id="accessKey"
+                            value="{{ $company->credential->accessKey }}" name="accessKey">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label for="secretKey" class="form-label">Secret Key</label>
-                        <input type="text" class="form-control" id="secretKey" value="{{$company->credential->secretKey}}" name="secretKey">
+                        <input type="text" class="form-control" id="secretKey"
+                            value="{{ $company->credential->secretKey }}" name="secretKey">
                     </div>
                 </div>
 
@@ -120,15 +123,17 @@
 
 @push('custom-scripts')
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             // update company ajax
-            $(document).on("click", ".update_company", function () {
+            $(document).on("click", ".update_company", function() {
                 let form = document.getElementById("edit_company_form");
                 let url = form.getAttribute("action");
                 let $this = $(this)
 
                 $this.prop("disabled", true);
-                $this.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`);
+                $this.html(
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+                    );
 
                 let isActive = 0;
                 if ($("#isActive").is(":checked"))
@@ -144,31 +149,34 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    complete: function () {
+                    complete: function() {
                         $this.removeAttr('disabled')
                         $this.html('Save')
-                        window.scrollTo(
-                            {
-                                top: 0,
-                                behavior: 'smooth'
-                            });
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
                     },
-                    success: function () {
+                    success: function() {
                         Swal.fire({
                             position: 'center',
                             icon: 'success',
                             title: 'Profile saved successfully',
                             showConfirmButton: false,
                             timer: 1000
-                        })
+                        }).then(() => {
+                            location.reload(); // reload page after success
+                        });
                     },
-                    error: function (jqXHR) {
+                    error: function(jqXHR) {
                         if (jqXHR.status === 422) {
                             let errorsArray = Object.entries(jqXHR.responseJSON.errors);
 
-                            $.each(errorsArray, function (index, value) {
-                                let formInput = $('#edit_company_form [name="' + value[0] + '"]');
-                                let error = '<span class="invalid_input text-danger">' + value[1] + '</span>';
+                            $.each(errorsArray, function(index, value) {
+                                let formInput = $('#edit_company_form [name="' + value[
+                                    0] + '"]');
+                                let error = '<span class="invalid_input text-danger">' +
+                                    value[1] + '</span>';
                                 formInput.parent().append(error);
                             })
                         } else {
