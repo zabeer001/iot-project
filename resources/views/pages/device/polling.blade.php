@@ -593,7 +593,7 @@
             };
         }
 
-        const USE_DUMMY_DATA = true; // Set to true for testing, false for real API
+        const USE_DUMMY_DATA = false; // Set to true for testing, false for real API
 
         // Dummy data generator function
         function generateDummyData(sensorId, range) {
